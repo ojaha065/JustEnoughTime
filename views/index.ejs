@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <title>Make an appointment | Just Enough Time</title>
+        <meta name="viewport" content="width=device-width,initial-scale=1.0,shrink-to-fit=no" />
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" type="text/css" />
+        <link rel="stylesheet" href="styles.css" type="text/css" media="all" />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"></script>
+        <script src="app.js"></script>
+    </head>
+    <body>
+        <div class="container">
+            <h1>Make an appointment</h1>
+
+            <%# Modal %>
+            <div class="modal fade" id="confirmDialog">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h2 class="modal-title">Confirm your appointment</h2>
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            Hello World!
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <table class="table table-bordered">
+                <thead class="thead-light">
+                    <tr>
+                        <th>&nbsp;</th>
+
+                        <% for(let i = 0;i < 7;i++){ %>
+                            <% if(i === dateInfo.currentDay){ %>
+                                <td class="table-primary text-center"><%=dateInfo.dates[i]%></td>
+                            <% } else{ %>
+                                <th class="text-center"><%=dateInfo.dates[i]%></th>
+                            <% } %>
+                        <% } %>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% let openingTime = 8; %>
+                    <% for(let i = 0;i < 9;i++){ %>
+                        <tr>
+                            <th class="text-center"><%=`${openingTime + i}.00`%></th>
+                            <td class="notReserved">&nbsp;</td>
+                            <td class="notReserved">&nbsp;</td>
+                            <td class="notReserved">&nbsp;</td>
+                            <td class="notReserved">&nbsp;</td>
+                            <td class="notReserved">&nbsp;</td>
+                            <td class="notReserved">&nbsp;</td>
+                            <td class="notReserved">&nbsp;</td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+    </body>
+</html>

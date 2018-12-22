@@ -1,0 +1,6 @@
+td{
+    cursor: pointer;
+}
+td:hover{
+    background-color: lightgray; /* Bootstrapin table-hover toimii vain rivitasolla, joten tehdään oma */
+}

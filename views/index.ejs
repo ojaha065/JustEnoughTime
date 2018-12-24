@@ -12,30 +12,47 @@
         <script src="app.js"></script>
     </head>
     <body>
-        <div class="container">
-            <h1>Make an appointment</h1>
-
             <%# Modal %>
-            <div class="modal fade" id="confirmDialog">
-                <div class="modal-dialog modal-dialog-centered">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h2 class="modal-title">Confirm your appointment</h2>
-                            <button type="button" class="close" data-dismiss="modal">&times;</button>
-                        </div>
-                        <div class="modal-body">
-                            Hello World!
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                        </div>
+        <div class="modal fade" id="confirmDialog">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 class="modal-title">Confirm your appointment</h2>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <form method="POST" action="/newReservation" id="theForm">
+                            <div class="form-group">
+                                <label for="name">Name:</label>
+                                <input type="text" class="form-control" name="name" id="name" minlength="4" maxlength="256" required />
+                            </div>
+                            <div class="form-group">
+                                <label for="email">E-mail:</label>
+                                <input type="email" class="form-control" name="email" id="email" />
+                            </div>
+                            <div class="form-group">
+                                <label for="password">Password for canceling the appointment:</label>
+                                <input type="password" class="form-control" name="password" id="password" required />
+                                <label for="passwordAgain">Confirm the password</label>
+                                <input type="passwordAgain" class="form-control" id="passwordAgain" required /> <%# Ei tarvitse namea, koska tätä ei koskaan haluta lähettää palvelimelle %>
+                            </div>
+                            <input type="hidden" name="rowId" id="rowId" />
+                            <input type="hidden" name="date" id="date" />
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" form="theForm" class="btn btn-primary">Submit</button>
+                        <button type="reset" form="theForm" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                     </div>
                 </div>
             </div>
+        </div>
 
+        <div class="container">
+            <h1>Make an appointment</h1>
             <table class="table table-bordered">
                 <thead class="thead-light">
-                    <tr>
+                    <tr id="dates">
                         <th>&nbsp;</th>
 
                         <% for(let i = 0;i < 7;i++){ %>
@@ -50,15 +67,15 @@
                 <tbody>
                     <% let openingTime = 8; %>
                     <% for(let i = 0;i < 9;i++){ %>
-                        <tr>
+                        <tr data-rowid="<%=i%>">
                             <th class="text-center"><%=`${openingTime + i}.00`%></th>
-                            <td class="notReserved">&nbsp;</td>
-                            <td class="notReserved">&nbsp;</td>
-                            <td class="notReserved">&nbsp;</td>
-                            <td class="notReserved">&nbsp;</td>
-                            <td class="notReserved">&nbsp;</td>
-                            <td class="notReserved">&nbsp;</td>
-                            <td class="notReserved">&nbsp;</td>
+                                <td class="notReserved">&nbsp;</td>
+                                <td class="notReserved">&nbsp;</td>
+                                <td class="notReserved">&nbsp;</td>
+                                <td class="notReserved">&nbsp;</td>
+                                <td class="notReserved">&nbsp;</td>
+                                <td class="notReserved">&nbsp;</td>
+                                <td class="notReserved">&nbsp;</td>
                         </tr>
                     <% } %>
                 </tbody>

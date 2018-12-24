@@ -21,5 +21,10 @@
     "ejs": "^2.6.1",
     "express": "^4.16.4",
     "moment": "^2.23.0"
+  },
+  "nodemonConfig": {
+    "ignore": [
+      "data.json"
+    ]
   }
 }

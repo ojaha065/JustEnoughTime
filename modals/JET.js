@@ -22,8 +22,8 @@ module.exports = {
                 email: (body.email) ? body.email : null,
                 password: body.password,
                 time : {
-                    rowId: body.rowId,
-                    date: body.date
+                    weekNumber: body.weekNumber,
+                    cellId: body.cellId
                 }
             };
             fs.readFile(datafile,"UTF-8",(error,data) => {

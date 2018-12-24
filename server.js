@@ -35,6 +35,7 @@ app.get("/",(req,res) => {
         let now = moment();
         let dateInfo = {
             currentDay: now.weekday(),
+            weekNumber: now.week(),
             dates: [
                 now.weekday(0).format("l"),
                 now.weekday(1).format("l"),
@@ -53,10 +54,7 @@ app.get("/",(req,res) => {
         });
         res.render("index",{
             dateInfo: dateInfo,
-            reservationData: {
-                rowIds: rowIds,
-                columnIds: columnIds
-            }
+            reservations: data
         });
     }).catch((error) => {
         throw error;

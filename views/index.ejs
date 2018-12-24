@@ -31,18 +31,22 @@
                                 <input type="email" class="form-control" name="email" id="email" />
                             </div>
                             <div class="form-group">
-                                <label for="password">Password for canceling the appointment:</label>
-                                <input type="password" class="form-control" name="password" id="password" required />
-                                <label for="passwordAgain">Confirm the password</label>
-                                <input type="passwordAgain" class="form-control" id="passwordAgain" required /> <%# Ei tarvitse namea, koska tätä ei koskaan haluta lähettää palvelimelle %>
+                                <label for="extraInfo">Additional details:</label>
+                                <textarea class="form-control" name="extraInfo" id="extraInfo" maxlength="500"></textarea>
                             </div>
-                            <input type="hidden" name="rowId" id="rowId" />
-                            <input type="hidden" name="date" id="date" />
+                            <div class="form-group">
+                                <label for="password">Password for canceling the appointment:</label>
+                                <input type="password" class="form-control" name="password" id="password" minlength="8" maxlength="256" required />
+                                <label for="passwordAgain">Confirm the password</label>
+                                <input type="passwordAgain" class="form-control" id="passwordAgain" minlength="8" maxlength="256" required /> <%# Ei tarvitse namea, koska tätä ei koskaan haluta lähettää palvelimelle %>
+                            </div>
+                            <input type="hidden" name="cellId" id="cellId" />
+                            <input type="hidden" name="weekNumber" value="<%=dateInfo.weekNumber%>" />
                         </form>
                     </div>
                     <div class="modal-footer">
+                    <button type="reset" form="theForm" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                         <button type="submit" form="theForm" class="btn btn-primary">Submit</button>
-                        <button type="reset" form="theForm" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                     </div>
                 </div>
             </div>
@@ -52,7 +56,7 @@
             <h1>Make an appointment</h1>
             <table class="table table-bordered">
                 <thead class="thead-light">
-                    <tr id="dates">
+                    <tr>
                         <th>&nbsp;</th>
 
                         <% for(let i = 0;i < 7;i++){ %>
@@ -66,17 +70,32 @@
                 </thead>
                 <tbody>
                     <% let openingTime = 8; %>
-                    <% for(let i = 0;i < 9;i++){ %>
-                        <tr data-rowid="<%=i%>">
-                            <th class="text-center"><%=`${openingTime + i}.00`%></th>
-                                <td class="notReserved">&nbsp;</td>
-                                <td class="notReserved">&nbsp;</td>
-                                <td class="notReserved">&nbsp;</td>
-                                <td class="notReserved">&nbsp;</td>
-                                <td class="notReserved">&nbsp;</td>
-                                <td class="notReserved">&nbsp;</td>
-                                <td class="notReserved">&nbsp;</td>
-                        </tr>
+                    <% let counter = 0; %>
+                    <% for(let i = 0;i < 62;i++){ %>
+
+                        <% if(i == 0 || i == 7 || i == 14 || i == 21 || i == 28 || i == 35 || i == 42 || i == 49 || i == 56){ %>
+                            <tr>
+                            <th class="text-center"><%=`${openingTime + counter}.00`%></th>
+                            <% counter++ %>
+                        <% } %>
+
+                        <% let thisCellDone = false; %>
+                        <% reservations.forEach((reservation) => { %>
+                            <% console.log(reservation.time.weekNumber,dateInfo.weekNumber,reservation.time.cellId,i); %>
+                            <% if(!thisCellDone && reservation.time.weekNumber == dateInfo.weekNumber && reservation.time.cellId == i){ %>
+                                <td class="cell table-danger text-center"><strong>Not available</strong></td>
+                                <% thisCellDone = true; %>
+                            <% } %>
+                        <% }) %>
+
+                        <% if(!thisCellDone){ %>
+                            <td class="cell notReserved">&nbsp;</td>  
+                        <% } %>
+
+                        <% if(i == 6 || i == 13 || i == 20 || i == 27 || i == 34 || i == 41 || i == 55){ %>
+                            </tr>
+                        <% } %>
+
                     <% } %>
                 </tbody>
             </table>

@@ -36,6 +36,11 @@ app.get("/",(req,res) => {
         let dateInfo = {
             currentDay: now.weekday(),
             weekNumber: now.week(),
+            nextYear: now.year(),
+            prevYear: null,
+            year: now.year(),
+            nextWeek: null,
+            prevWeek: null,
             dates: [
                 now.weekday(0).format("l"),
                 now.weekday(1).format("l"),
@@ -46,12 +51,16 @@ app.get("/",(req,res) => {
                 now.weekday(6).format("l")
             ]
         };
-        let rowIds = [];
-        let columnIds = [];
-        data.forEach((item) => {
-            rowIds.push(item.time.rowId);
-            columnIds.push(1);
-        });
+
+        // Changing year
+        if(dateInfo.weekNumber >= 52){
+            dateInfo.nextWeek = 1;
+            dateInfo.nextYear = dateInfo.year + 1;
+        }
+        else{
+            dateInfo.nextWeek = dateInfo.weekNumber + 1;
+        }
+
         res.render("index",{
             dateInfo: dateInfo,
             reservations: data
@@ -60,10 +69,77 @@ app.get("/",(req,res) => {
         throw error;
     });
 });
+app.get("/date/:week/:year",(req,res) => {
+    JET.getAllReservations().then((data) => {
+        let now = moment();
+        let realNow = moment();
+
+        if(!isNaN(req.params.week) && req.params.week > 0 && req.params.week <= 52){
+            now.week(req.params.week);
+        }
+
+        if(!isNaN(req.params.year)){
+            now.year(req.params.year);
+        }
+
+        let dateInfo = {
+            currentDay: (req.params.week == realNow.week() && req.params.year == realNow.year()) ? now.weekday() : null,
+            weekNumber: now.week(),
+            year: now.year(),
+            nextYear: now.year(),
+            prevYear: now.year(),
+            nextWeek: null,
+            prevWeek: null,
+            dates: [
+                now.weekday(0).format("l"),
+                now.weekday(1).format("l"),
+                now.weekday(2).format("l"),
+                now.weekday(3).format("l"),
+                now.weekday(4).format("l"),
+                now.weekday(5).format("l"),
+                now.weekday(6).format("l")
+            ]
+        };
+
+        // Changing year
+        if(dateInfo.weekNumber >= 52){
+            dateInfo.nextWeek = 1;
+            dateInfo.nextYear = dateInfo.year + 1;
+        }
+        else{
+            dateInfo.nextWeek = dateInfo.weekNumber + 1;
+        }
+
+        if(realNow.diff(now.week(-1),"weeks") <= 0){
+            if(dateInfo.weekNumber <= 1){
+                dateInfo.prevWeek = 52;
+                dateInfo.prevYear = dateInfo.year - 1;
+            }
+            else{
+                dateInfo.prevWeek = dateInfo.weekNumber - 1;
+            }
+        }
+
+        res.render("index",{
+            dateInfo: dateInfo,
+            reservations: data
+        });
+    }).catch((error) => {
+        throw error;
+    });
+});
+
+app.get("/date",(req,res) => {
+    res.redirect("/");
+});
+app.get("/date/:week",(req,res) => {
+    res.redirect("/");
+});
+
 app.post("/newReservation",(req,res) => {
     //console.log(req.body);
     JET.newReservation(req.body).then(() => {
-        res.redirect("/");
+        res.redirect(`/date/${req.body.weekNumber}/${req.body.year}`);
     }).catch((error) => {
         throw error;
     });

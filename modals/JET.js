@@ -21,8 +21,10 @@ module.exports = {
                 name: body.name,
                 email: (body.email) ? body.email : null,
                 password: body.password,
+                message: (body.extraInfo) ? body.extraInfo : null,
                 time : {
                     weekNumber: body.weekNumber,
+                    year: body.year,
                     cellId: body.cellId
                 }
             };

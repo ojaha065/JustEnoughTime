@@ -5,16 +5,16 @@
         <title>Make an appointment | Just Enough Time</title>
         <meta name="viewport" content="width=device-width,initial-scale=1.0,shrink-to-fit=no" />
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" type="text/css" />
-        <link rel="stylesheet" href="styles.css" type="text/css" media="all" />
+        <link rel="stylesheet" href="/styles.css" type="text/css" media="all" />
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"></script>
-        <script src="app.js"></script>
+        <script src="/app.js"></script>
     </head>
     <body>
             <%# Modal %>
         <div class="modal fade" id="confirmDialog">
-            <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h2 class="modal-title">Confirm your appointment</h2>
@@ -38,10 +38,11 @@
                                 <label for="password">Password for canceling the appointment:</label>
                                 <input type="password" class="form-control" name="password" id="password" minlength="8" maxlength="256" required />
                                 <label for="passwordAgain">Confirm the password</label>
-                                <input type="passwordAgain" class="form-control" id="passwordAgain" minlength="8" maxlength="256" required /> <%# Ei tarvitse namea, koska tätä ei koskaan haluta lähettää palvelimelle %>
+                                <input type="password" class="form-control" id="passwordAgain" minlength="8" maxlength="256" required /> <%# Ei tarvitse namea, koska tätä ei koskaan haluta lähettää palvelimelle %>
                             </div>
                             <input type="hidden" name="cellId" id="cellId" />
                             <input type="hidden" name="weekNumber" value="<%=dateInfo.weekNumber%>" />
+                            <input type="hidden" name="year" value="<%=dateInfo.year%>" />
                         </form>
                     </div>
                     <div class="modal-footer">
@@ -54,13 +55,17 @@
 
         <div class="container">
             <h1>Make an appointment</h1>
+            <% if(dateInfo.prevWeek){ %>
+                <a href="/date/<%=dateInfo.prevWeek%>/<%=dateInfo.prevYear%>" class="d-inline-block">Previous week</a>
+            <% } %>
+            <a href="/date/<%=dateInfo.nextWeek%>/<%=dateInfo.nextYear%>" class="d-inline-block text-right">Next week</a>
             <table class="table table-bordered">
                 <thead class="thead-light">
                     <tr>
                         <th>&nbsp;</th>
 
                         <% for(let i = 0;i < 7;i++){ %>
-                            <% if(i === dateInfo.currentDay){ %>
+                            <% if(i == dateInfo.currentDay){ %>
                                 <td class="table-primary text-center"><%=dateInfo.dates[i]%></td>
                             <% } else{ %>
                                 <th class="text-center"><%=dateInfo.dates[i]%></th>
@@ -71,18 +76,17 @@
                 <tbody>
                     <% let openingTime = 8; %>
                     <% let counter = 0; %>
-                    <% for(let i = 0;i < 62;i++){ %>
+                    <% for(let i = 0;i < 63;i++){ %>
 
                         <% if(i == 0 || i == 7 || i == 14 || i == 21 || i == 28 || i == 35 || i == 42 || i == 49 || i == 56){ %>
                             <tr>
                             <th class="text-center"><%=`${openingTime + counter}.00`%></th>
-                            <% counter++ %>
+                            <% counter++; %>
                         <% } %>
 
                         <% let thisCellDone = false; %>
                         <% reservations.forEach((reservation) => { %>
-                            <% console.log(reservation.time.weekNumber,dateInfo.weekNumber,reservation.time.cellId,i); %>
-                            <% if(!thisCellDone && reservation.time.weekNumber == dateInfo.weekNumber && reservation.time.cellId == i){ %>
+                            <% if(!thisCellDone && reservation.time.weekNumber == dateInfo.weekNumber && reservation.time.cellId == i && reservation.time.year == dateInfo.year){ %>
                                 <td class="cell table-danger text-center"><strong>Not available</strong></td>
                                 <% thisCellDone = true; %>
                             <% } %>

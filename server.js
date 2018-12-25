@@ -136,6 +136,33 @@ app.get("/date/:week",(req,res) => {
     res.redirect("/");
 });
 
+app.get("/admin",(req,res) => {
+    JET.getAllReservations().then((data) => {
+        let now = moment();
+        let dateInfo = {
+            currentDay: now.weekday(),
+            weekNumber: now.week(),
+            year: now.year(),
+            dates: [
+                now.weekday(0).format("l"),
+                now.weekday(1).format("l"),
+                now.weekday(2).format("l"),
+                now.weekday(3).format("l"),
+                now.weekday(4).format("l"),
+                now.weekday(5).format("l"),
+                now.weekday(6).format("l")
+            ]
+        };
+
+        res.render("admin",{
+            dateInfo: dateInfo,
+            reservations: data  
+        });
+    }).catch((error) => {
+
+    });
+});
+
 app.post("/newReservation",(req,res) => {
     //console.log(req.body);
     JET.newReservation(req.body).then(() => {

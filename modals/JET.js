@@ -20,7 +20,6 @@ module.exports = {
             let thisReservation = {
                 name: body.name,
                 email: (body.email) ? body.email : null,
-                password: body.password,
                 message: (body.extraInfo) ? body.extraInfo : null,
                 time : {
                     weekNumber: body.weekNumber,

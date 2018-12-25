@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <title>Admin | Just Enough Time</title>
+        <meta name="viewport" content="width=device-width,initial-scale=1.0,shrink-to-fit=no" />
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" type="text/css" />
+        <link rel="stylesheet" href="/styles_admin.css" type="text/css" media="all" />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"></script>
+    </head>
+    <body>
+        <div class="container">
+            <h1>Manage this week's appointments</h1>
+            <table class="table table-bordered">
+                <thead class="thead-light">
+                    <tr>
+                        <th>&nbsp;</th>
+
+                        <% for(let i = 0;i < 7;i++){ %>
+                            <% if(i == dateInfo.currentDay){ %>
+                                <td class="table-primary text-center"><%=dateInfo.dates[i]%></td>
+                            <% } else{ %>
+                                <th class="text-center"><%=dateInfo.dates[i]%></th>
+                            <% } %>
+                        <% } %>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% let openingTime = 8; %>
+                    <% let counter = 0; %>
+                    <% for(let i = 0;i < 63;i++){ %>
+
+                        <% if(i == 0 || i == 7 || i == 14 || i == 21 || i == 28 || i == 35 || i == 42 || i == 49 || i == 56){ %>
+                            <tr>
+                            <th class="text-center"><%=`${openingTime + counter}.00`%></th>
+                            <% counter++; %>
+                        <% } %>
+
+                        <% let thisCellDone = false; %>
+                        <% reservations.forEach((reservation) => { %>
+                            <% if(!thisCellDone && reservation.time.weekNumber == dateInfo.weekNumber && reservation.time.cellId == i && reservation.time.year == dateInfo.year){ %>
+                                <td class="reserved table-danger text-center"><strong><%=reservation.name%></strong></td>
+                                <% thisCellDone = true; %>
+                            <% } %>
+                        <% }) %>
+
+                        <% if(!thisCellDone){ %>
+                            <td>&nbsp;</td>  
+                        <% } %>
+
+                        <% if(i == 6 || i == 13 || i == 20 || i == 27 || i == 34 || i == 41 || i == 55){ %>
+                            </tr>
+                        <% } %>
+
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+    </body>
+</html>

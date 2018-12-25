@@ -14,7 +14,7 @@
     <body>
             <%# Modal %>
         <div class="modal fade" id="confirmDialog">
-            <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h2 class="modal-title">Confirm your appointment</h2>
@@ -33,12 +33,6 @@
                             <div class="form-group">
                                 <label for="extraInfo">Additional details:</label>
                                 <textarea class="form-control" name="extraInfo" id="extraInfo" maxlength="500"></textarea>
-                            </div>
-                            <div class="form-group">
-                                <label for="password">Password for canceling the appointment:</label>
-                                <input type="password" class="form-control" name="password" id="password" minlength="8" maxlength="256" required />
-                                <label for="passwordAgain">Confirm the password</label>
-                                <input type="password" class="form-control" id="passwordAgain" minlength="8" maxlength="256" required /> <%# Ei tarvitse namea, koska tätä ei koskaan haluta lähettää palvelimelle %>
                             </div>
                             <input type="hidden" name="cellId" id="cellId" />
                             <input type="hidden" name="weekNumber" value="<%=dateInfo.weekNumber%>" />

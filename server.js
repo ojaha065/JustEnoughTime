@@ -77,10 +77,15 @@ app.get("/",(req,res) => {
 
         res.render("index",{
             dateInfo: dateInfo,
-            reservations: data
+            reservations: data,
+            error: null
         });
     }).catch((error) => {
-        throw error;
+        res.render("index",{
+            dateInfo: null,
+            reservations: null,
+            error: "Error while loading data. Please try again later."
+        });
     });
 });
 app.get("/date/:week/:year",(req,res) => {
@@ -136,10 +141,15 @@ app.get("/date/:week/:year",(req,res) => {
 
         res.render("index",{
             dateInfo: dateInfo,
-            reservations: data
+            reservations: data,
+            error: null,
         });
     }).catch((error) => {
-        throw error;
+        res.render("index",{
+            dateInfo: null,
+            reservations: null,
+            error: "Error while loading data. Please try again later.",
+        });
     });
 });
 
@@ -184,7 +194,11 @@ app.get("/admin",(req,res) => {
                 reservations: data  
             });
         }).catch((error) => {
-    
+            res.render("index",{
+                dateInfo: null,
+                reservations: null,
+                error: "Error while loading data. Please try again later.",
+            });
         });
     }
     else{
@@ -197,7 +211,7 @@ app.post("/newReservation",(req,res) => {
     JET.newReservation(req.body).then(() => {
         res.redirect(`/date/${req.body.weekNumber}/${req.body.year}`);
     }).catch((error) => {
-        throw error;
+        res.redirect("/");
     });
 });
 app.post("/login",(req,res) => {
@@ -206,8 +220,7 @@ app.post("/login",(req,res) => {
         res.redirect("/admin");
     }).catch(() => {
         res.render("login",{
-            error: "Incorrect username or password",
-            errorClass: "danger"
+            error: "Incorrect username or password"
         });
     });
 });

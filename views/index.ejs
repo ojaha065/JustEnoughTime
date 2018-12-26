@@ -12,92 +12,99 @@
         <script src="/app.js"></script>
     </head>
     <body>
-            <%# Modal %>
-        <div class="modal fade" id="confirmDialog">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h2 class="modal-title">Confirm your appointment</h2>
-                        <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    </div>
-                    <div class="modal-body">
-                        <form method="POST" action="/newReservation" id="theForm">
-                            <div class="form-group">
-                                <label for="name">Name:</label>
-                                <input type="text" class="form-control" name="name" id="name" minlength="4" maxlength="256" required />
+        <div class="container">
+            <% if(error){ %>
+                <div class="alert alert-danger mt-5">
+                    <%=error%>
+                </div>
+            <% } else{ %>
+                <h1>Make an appointment</h1>
+
+                <%# Modal %>
+                <div class="modal fade" id="confirmDialog">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h2 class="modal-title">Confirm your appointment</h2>
+                                <button type="button" class="close" data-dismiss="modal">&times;</button>
                             </div>
-                            <div class="form-group">
-                                <label for="email">E-mail:</label>
-                                <input type="email" class="form-control" name="email" id="email" />
+                            <div class="modal-body">
+                                <form method="POST" action="/newReservation" id="theForm">
+                                    <div class="form-group">
+                                        <label for="name">Name:</label>
+                                        <input type="text" class="form-control" name="name" id="name" minlength="4" maxlength="256" required />
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="email">E-mail:</label>
+                                        <input type="email" class="form-control" name="email" id="email" />
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="extraInfo">Additional details:</label>
+                                        <textarea class="form-control" name="extraInfo" id="extraInfo" maxlength="500"></textarea>
+                                    </div>
+                                    <input type="hidden" name="cellId" id="cellId" />
+                                    <input type="hidden" name="weekNumber" value="<%=dateInfo.weekNumber%>" />
+                                    <input type="hidden" name="year" value="<%=dateInfo.year%>" />
+                                </form>
                             </div>
-                            <div class="form-group">
-                                <label for="extraInfo">Additional details:</label>
-                                <textarea class="form-control" name="extraInfo" id="extraInfo" maxlength="500"></textarea>
+                            <div class="modal-footer">
+                            <button type="reset" form="theForm" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                <button type="submit" form="theForm" class="btn btn-primary">Submit</button>
                             </div>
-                            <input type="hidden" name="cellId" id="cellId" />
-                            <input type="hidden" name="weekNumber" value="<%=dateInfo.weekNumber%>" />
-                            <input type="hidden" name="year" value="<%=dateInfo.year%>" />
-                        </form>
-                    </div>
-                    <div class="modal-footer">
-                    <button type="reset" form="theForm" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                        <button type="submit" form="theForm" class="btn btn-primary">Submit</button>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </div>
 
-        <div class="container">
-            <h1>Make an appointment</h1>
-            <% if(dateInfo.prevWeek){ %>
-                <a href="/date/<%=dateInfo.prevWeek%>/<%=dateInfo.prevYear%>" class="d-inline-block">Previous week</a>
+                <% if(dateInfo.prevWeek){ %>
+                    <a href="/date/<%=dateInfo.prevWeek%>/<%=dateInfo.prevYear%>" class="d-inline-block">Previous week</a>
+                <% } %>
+                <a href="/date/<%=dateInfo.nextWeek%>/<%=dateInfo.nextYear%>" class="d-inline-block text-right">Next week</a>
+                <table class="table table-bordered">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>&nbsp;</th>
+
+                            <% for(let i = 0;i < 7;i++){ %>
+                                <% if(i == dateInfo.currentDay){ %>
+                                    <td class="table-primary text-center"><%=dateInfo.dates[i]%></td>
+                                <% } else{ %>
+                                    <th class="text-center"><%=dateInfo.dates[i]%></th>
+                                <% } %>
+                            <% } %>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% let openingTime = 8; %>
+                        <% let counter = 0; %>
+                        <% for(let i = 0;i < 63;i++){ %>
+
+                            <% if(i == 0 || i == 7 || i == 14 || i == 21 || i == 28 || i == 35 || i == 42 || i == 49 || i == 56){ %>
+                                <tr>
+                                <th class="text-center"><%=`${openingTime + counter}.00`%></th>
+                                <% counter++; %>
+                            <% } %>
+
+                            <% let thisCellDone = false; %>
+                            <% reservations.forEach((reservation) => { %>
+                                <% if(!thisCellDone && reservation.time.weekNumber == dateInfo.weekNumber && reservation.time.cellId == i && reservation.time.year == dateInfo.year){ %>
+                                    <td class="cell table-danger text-center"><strong>Not available</strong></td>
+                                    <% thisCellDone = true; %>
+                                <% } %>
+                            <% }) %>
+
+                            <% if(!thisCellDone){ %>
+                                <td class="cell notReserved">&nbsp;</td>  
+                            <% } %>
+
+                            <% if(i == 6 || i == 13 || i == 20 || i == 27 || i == 34 || i == 41 || i == 55){ %>
+                                </tr>
+                            <% } %>
+
+                        <% } %>
+                    </tbody>
+                </table>
+                <small><a href="/admin">Admin</a></small>
             <% } %>
-            <a href="/date/<%=dateInfo.nextWeek%>/<%=dateInfo.nextYear%>" class="d-inline-block text-right">Next week</a>
-            <table class="table table-bordered">
-                <thead class="thead-light">
-                    <tr>
-                        <th>&nbsp;</th>
-
-                        <% for(let i = 0;i < 7;i++){ %>
-                            <% if(i == dateInfo.currentDay){ %>
-                                <td class="table-primary text-center"><%=dateInfo.dates[i]%></td>
-                            <% } else{ %>
-                                <th class="text-center"><%=dateInfo.dates[i]%></th>
-                            <% } %>
-                        <% } %>
-                    </tr>
-                </thead>
-                <tbody>
-                    <% let openingTime = 8; %>
-                    <% let counter = 0; %>
-                    <% for(let i = 0;i < 63;i++){ %>
-
-                        <% if(i == 0 || i == 7 || i == 14 || i == 21 || i == 28 || i == 35 || i == 42 || i == 49 || i == 56){ %>
-                            <tr>
-                            <th class="text-center"><%=`${openingTime + counter}.00`%></th>
-                            <% counter++; %>
-                        <% } %>
-
-                        <% let thisCellDone = false; %>
-                        <% reservations.forEach((reservation) => { %>
-                            <% if(!thisCellDone && reservation.time.weekNumber == dateInfo.weekNumber && reservation.time.cellId == i && reservation.time.year == dateInfo.year){ %>
-                                <td class="cell table-danger text-center"><strong>Not available</strong></td>
-                                <% thisCellDone = true; %>
-                            <% } %>
-                        <% }) %>
-
-                        <% if(!thisCellDone){ %>
-                            <td class="cell notReserved">&nbsp;</td>  
-                        <% } %>
-
-                        <% if(i == 6 || i == 13 || i == 20 || i == 27 || i == 34 || i == 41 || i == 55){ %>
-                            </tr>
-                        <% } %>
-
-                    <% } %>
-                </tbody>
-            </table>
-            <small><a href="/admin">Admin</a></small>
         </div>
     </body>
 </html>

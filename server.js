@@ -11,6 +11,7 @@ console.clear();
 console.info("Starting up... Please wait!");
 
 const express = require("express");
+const session = require("express-session");
 const bodyParser = require("body-parser");
 const moment = require("moment");
 
@@ -28,6 +29,19 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
     extended: true
 }));
+app.use(session({
+    secret: "mklJklfdj45u984Fds", // Change this before using
+    resave: false,
+    saveUninitialized: false
+}));
+
+// Jos isLoggedIn-muuttujaa ei ole, luodaan se
+app.use((req,res,next) => {
+    if(!req.session.isLoggedIn){
+        req.session.isLoggedIn = false;
+    }
+    next();
+});
 
 // Routes
 app.get("/",(req,res) => {
@@ -136,31 +150,46 @@ app.get("/date/:week",(req,res) => {
     res.redirect("/");
 });
 
-app.get("/admin",(req,res) => {
-    JET.getAllReservations().then((data) => {
-        let now = moment();
-        let dateInfo = {
-            currentDay: now.weekday(),
-            weekNumber: now.week(),
-            year: now.year(),
-            dates: [
-                now.weekday(0).format("l"),
-                now.weekday(1).format("l"),
-                now.weekday(2).format("l"),
-                now.weekday(3).format("l"),
-                now.weekday(4).format("l"),
-                now.weekday(5).format("l"),
-                now.weekday(6).format("l")
-            ]
-        };
-
-        res.render("admin",{
-            dateInfo: dateInfo,
-            reservations: data  
-        });
-    }).catch((error) => {
-
+app.get("/login",(req,res) => {
+    res.render("login",{
+        error: null
     });
+});
+app.get("/logout",(req,res) => {
+    req.session.isLoggedIn = false;
+    res.redirect("/");
+});
+
+app.get("/admin",(req,res) => {
+    if(req.session.isLoggedIn === true){
+        JET.getAllReservations().then((data) => {
+            let now = moment();
+            let dateInfo = {
+                currentDay: now.weekday(),
+                weekNumber: now.week(),
+                year: now.year(),
+                dates: [
+                    now.weekday(0).format("l"),
+                    now.weekday(1).format("l"),
+                    now.weekday(2).format("l"),
+                    now.weekday(3).format("l"),
+                    now.weekday(4).format("l"),
+                    now.weekday(5).format("l"),
+                    now.weekday(6).format("l")
+                ]
+            };
+    
+            res.render("admin",{
+                dateInfo: dateInfo,
+                reservations: data  
+            });
+        }).catch((error) => {
+    
+        });
+    }
+    else{
+        res.redirect("/login");
+    }
 });
 
 app.post("/newReservation",(req,res) => {
@@ -169,6 +198,17 @@ app.post("/newReservation",(req,res) => {
         res.redirect(`/date/${req.body.weekNumber}/${req.body.year}`);
     }).catch((error) => {
         throw error;
+    });
+});
+app.post("/login",(req,res) => {
+    JET.login(req.body).then(() => {
+        req.session.isLoggedIn = true;
+        res.redirect("/admin");
+    }).catch(() => {
+        res.render("login",{
+            error: "Incorrect username or password",
+            errorClass: "danger"
+        });
     });
 });
 

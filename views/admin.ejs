@@ -9,11 +9,13 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"></script>
+        <script src="scripts_admin.js"></script>
     </head>
     <body>
         <div class="container">
             <h1>Manage this week's appointments</h1>
             <a href="/logout" class="btn btn-danger">Log out</a>
+
             <table class="table table-bordered">
                 <thead class="thead-light">
                     <tr>
@@ -42,7 +44,12 @@
                         <% let thisCellDone = false; %>
                         <% reservations.forEach((reservation) => { %>
                             <% if(!thisCellDone && reservation.time.weekNumber == dateInfo.weekNumber && reservation.time.cellId == i && reservation.time.year == dateInfo.year){ %>
-                                <td class="reserved table-danger text-center"><strong><%=reservation.name%></strong></td>
+                                <td class="reserved table-danger text-center">
+                                    <strong><%=reservation.name%></strong>
+                                    <br />
+                                    <small><%=reservation.email%></small>
+                                    <p class="extraInfoAboutReservation"><%=reservation.message%></p>
+                                </td>
                                 <% thisCellDone = true; %>
                             <% } %>
                         <% }) %>

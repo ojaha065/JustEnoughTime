@@ -25,7 +25,8 @@
   },
   "nodemonConfig": {
     "ignore": [
-      "data.json"
+      "data.json",
+      "/public/"
     ]
   }
 }

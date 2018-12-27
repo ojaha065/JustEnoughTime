@@ -17,7 +17,9 @@
                 <div class="alert alert-danger mt-5">
                     <%=error%>
                 </div>
-            <% } else{ %>
+            <% } %>
+            
+            <% if(dateInfo){ %>
                 <h1>Make an appointment</h1>
 
                 <%# Modal %>
@@ -32,11 +34,11 @@
                                 <form method="POST" action="/newReservation" id="theForm">
                                     <div class="form-group">
                                         <label for="name">Name:</label>
-                                        <input type="text" class="form-control" name="name" id="name" minlength="4" maxlength="256" required />
+                                        <input type="text" class="form-control" name="name" id="name" minlength="4" maxlength="60" required />
                                     </div>
                                     <div class="form-group">
                                         <label for="email">E-mail:</label>
-                                        <input type="email" class="form-control" name="email" id="email" />
+                                        <input type="email" class="form-control" name="email" id="email" maxlength="50" />
                                     </div>
                                     <div class="form-group">
                                         <label for="extraInfo">Additional details:</label>
@@ -59,6 +61,7 @@
                     <a href="/date/<%=dateInfo.prevWeek%>/<%=dateInfo.prevYear%>" class="d-inline-block">Previous week</a>
                 <% } %>
                 <a href="/date/<%=dateInfo.nextWeek%>/<%=dateInfo.nextYear%>" class="d-inline-block text-right">Next week</a>
+                
                 <table class="table table-bordered">
                     <thead class="thead-light">
                         <tr>

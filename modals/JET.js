@@ -6,7 +6,7 @@ try{
     crypto = require("crypto");
 }
 catch(error){
-    throw "Crypto-moduuli ei ole käytettävissä. Lopetetaan."
+    throw "Crypto not available. Exiting."
 }
 
 const fs = require("fs");
@@ -61,7 +61,7 @@ module.exports = {
                                 resolve();
                             }
                             else{
-                                reject(error);
+                                reject();
                             }
                         });
                     }
@@ -70,7 +70,7 @@ module.exports = {
                     }
                 }
                 else{
-                    reject(error);
+                    reject();
                 }
             });
         });
@@ -79,7 +79,7 @@ module.exports = {
         return new Promise((resolve,reject) => {
             fs.readFile(datafile,"UTF-8",(error,data) => {
                 if(!error){
-                    reject(JSON.parse(data).reservations);
+                    resolve(JSON.parse(data).reservations);
                 }
                 else{
                     reject(error);
@@ -92,8 +92,7 @@ module.exports = {
             fs.readFile(datafile,"UTF-8",(error,data) => {
                 if(!error){
                     let users = JSON.parse(data).users;
-                    let hash = crypto.createHash("sha256").update(body.password).digest("hex");
-                    console.log(hash);
+                    let hash = (body.password) ? crypto.createHash("sha256").update(body.password).digest("hex") : "Nope";
                     let thisUser = users.find((user) => {
                         return body.username === user.username;
                     });
@@ -105,7 +104,7 @@ module.exports = {
                     }
                 }
                 else{
-                    reject(error);
+                    reject();
                 }
             });
         });

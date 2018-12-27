@@ -30,14 +30,14 @@ app.use(bodyParser.urlencoded({
     extended: true
 }));
 app.use(session({
-    secret: "mklJklfdj45u984Fds", // Change this before using
+    secret: "mklJklfdj45u984Fds",
     resave: false,
     saveUninitialized: false
 }));
 
 // Jos isLoggedIn-muuttujaa ei ole, luodaan se
 app.use((req,res,next) => {
-    if(!req.session.isLoggedIn){
+    if(req.session.isLoggedIn === undefined){
         req.session.isLoggedIn = false;
     }
     next();
@@ -48,13 +48,13 @@ app.get("/",(req,res) => {
     JET.getAllReservations().then((data) => {
         let now = moment();
         let dateInfo = {
-            currentDay: now.weekday(),
-            weekNumber: now.week(),
+            currentDay: now.weekday(), // 0-6, huomioi viikon aloituspäivän eri maissa
+            weekNumber: now.week(), // 1-52
             nextYear: now.year(),
-            prevYear: null,
+            prevYear: null, // Tämä sivu näyttää aina nykyisen viikon, jolloin taakse päin ei pääse
             year: now.year(),
-            nextWeek: null,
-            prevWeek: null,
+            nextWeek: null, // Täytetään alempana
+            prevWeek: null, // Tämä sivu näyttää aina nykyisen viikon, jolloin taakse päin ei pääse
             dates: [
                 now.weekday(0).format("l"),
                 now.weekday(1).format("l"),
@@ -75,16 +75,17 @@ app.get("/",(req,res) => {
             dateInfo.nextWeek = dateInfo.weekNumber + 1;
         }
 
-        res.render("index",{
+        res.status(200).render("index",{
             dateInfo: dateInfo,
             reservations: data,
             error: null
         });
     }).catch((error) => {
-        res.render("index",{
+        console.error(error);
+        res.status(500).render("index",{
             dateInfo: null,
             reservations: null,
-            error: "Error while loading data. Please try again later."
+            error: "Error while retrieving data. Please try again later."
         });
     });
 });
@@ -97,12 +98,12 @@ app.get("/date/:week/:year",(req,res) => {
             now.week(req.params.week);
         }
 
-        if(!isNaN(req.params.year)){
+        if(!isNaN(req.params.year) && req.params.year >= realNow.year() && req.params.year <= realNow.year() + 2){
             now.year(req.params.year);
         }
 
         let dateInfo = {
-            currentDay: (req.params.week == realNow.week() && req.params.year == realNow.year()) ? now.weekday() : null,
+            currentDay: (Number(req.params.week) === realNow.week() && Number(req.params.year) == realNow.year()) ? now.weekday() : null,
             weekNumber: now.week(),
             year: now.year(),
             nextYear: now.year(),
@@ -139,20 +140,22 @@ app.get("/date/:week/:year",(req,res) => {
             }
         }
 
-        res.render("index",{
+        res.status(200).render("index",{
             dateInfo: dateInfo,
             reservations: data,
             error: null,
         });
     }).catch((error) => {
-        res.render("index",{
+        console.error(error);
+        res.status(500).render("index",{
             dateInfo: null,
             reservations: null,
-            error: "Error while loading data. Please try again later.",
+            error: "Error while retrieving data. Please try again later."
         });
     });
 });
 
+// Jos parametreja puuttuu, ohjataan etusivulle
 app.get("/date",(req,res) => {
     res.redirect("/");
 });
@@ -161,7 +164,7 @@ app.get("/date/:week",(req,res) => {
 });
 
 app.get("/login",(req,res) => {
-    res.render("login",{
+    res.status(200).render("login",{
         error: null
     });
 });
@@ -189,37 +192,67 @@ app.get("/admin",(req,res) => {
                 ]
             };
     
-            res.render("admin",{
+            res.status(200).render("admin",{
                 dateInfo: dateInfo,
                 reservations: data  
             });
         }).catch((error) => {
-            res.render("index",{
+            console.error(error);
+            res.status(500).render("index",{
                 dateInfo: null,
                 reservations: null,
-                error: "Error while loading data. Please try again later.",
+                error: "Error while retrieving data. Please try again later."
             });
         });
     }
-    else{
+    else{ // Jos käyttäjä ei ole kirjautunut
         res.redirect("/login");
     }
 });
 
 app.post("/newReservation",(req,res) => {
     //console.log(req.body);
-    JET.newReservation(req.body).then(() => {
-        res.redirect(`/date/${req.body.weekNumber}/${req.body.year}`);
-    }).catch((error) => {
-        res.redirect("/");
-    });
+
+    let weHaveError = false;
+    if(req.body.name && req.body.weekNumber && req.body.year && req.body.cellId){
+        if(req.body.name.length < 60 && req.body.weekNumber >= 1 && req.body.weekNumber <= 52 && req.body.year >= moment().year() && req.body.year <= moment().year() + 2 && req.body.cellId >= 0 && req.body.cellId <= 62){
+            if((!req.body.email || req.body.email.length <= 50) && (!req.body.extraInfo || req.body.extraInfo.length <= 500)){
+                JET.newReservation(req.body).then(() => {
+                    res.redirect(`/date/${req.body.weekNumber}/${req.body.year}`);
+                }).catch(() => {
+                    res.status(500).render("index",{
+                        dateInfo: null,
+                        reservations: null,
+                        error: "Error while saving your reservation. Please try again later."
+                    });
+                });
+            }
+            else{
+                weHaveError = true;
+            }
+        }
+        else{
+            weHaveError = true;
+        }
+    }
+    else{
+        weHaveError = true;
+    }
+
+    if(weHaveError){
+        res.status(400).render("index",{
+            dateInfo: null,
+            reservations: null,
+            error: "Error while saving your reservation. Please try again later."
+        });
+    }
 });
 app.post("/login",(req,res) => {
     JET.login(req.body).then(() => {
         req.session.isLoggedIn = true;
         res.redirect("/admin");
     }).catch(() => {
-        res.render("login",{
+        res.status(400).render("login",{
             error: "Incorrect username or password"
         });
     });

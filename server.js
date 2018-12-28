@@ -10,6 +10,10 @@
 console.clear();
 console.info("Starting up... Please wait!");
 
+// Ladataan asetukset
+const fs = require("fs");
+const settings = JSON.parse(fs.readFileSync("settings.json","UTF-8"));
+
 const express = require("express");
 const session = require("express-session");
 const bodyParser = require("body-parser");
@@ -22,7 +26,7 @@ const JET = require("./modals/JET.js");
 app.set("views","./views");
 app.set("view engine","ejs");
 
-moment.locale("fi");
+moment.locale(settings.moment_language || "en");
 
 app.use(express.static("./public"));
 app.use(bodyParser.json());
@@ -77,6 +81,7 @@ app.get("/",(req,res) => {
 
         res.status(200).render("index",{
             dateInfo: dateInfo,
+            companyName: settings.company_name || "JustEnoughTime",
             reservations: data,
             error: null
         });
@@ -84,6 +89,7 @@ app.get("/",(req,res) => {
         console.error(error);
         res.status(500).render("index",{
             dateInfo: null,
+            companyName: settings.company_name || "JustEnoughTime",
             reservations: null,
             error: "Error while retrieving data. Please try again later."
         });
@@ -97,9 +103,17 @@ app.get("/date/:week/:year",(req,res) => {
         if(!isNaN(req.params.week) && req.params.week > 0 && req.params.week <= 52){
             now.week(req.params.week);
         }
+        else{ // TODO: Better handler for this
+            res.redirect("/");
+            return true;
+        }
 
-        if(!isNaN(req.params.year) && req.params.year >= realNow.year() && req.params.year <= realNow.year() + 2){
+        if(!isNaN(req.params.year) && req.params.year >= realNow.year() && req.params.year <= realNow.year() + settings.yearsToFuture){
             now.year(req.params.year);
+        }
+        else{ // TODO: Better handler for this
+            res.redirect("/");
+            return true;
         }
 
         let dateInfo = {
@@ -142,6 +156,7 @@ app.get("/date/:week/:year",(req,res) => {
 
         res.status(200).render("index",{
             dateInfo: dateInfo,
+            companyName: settings.company_name || "JustEnoughTime",
             reservations: data,
             error: null,
         });
@@ -149,6 +164,7 @@ app.get("/date/:week/:year",(req,res) => {
         console.error(error);
         res.status(500).render("index",{
             dateInfo: null,
+            companyName: settings.company_name || "JustEnoughTime",
             reservations: null,
             error: "Error while retrieving data. Please try again later."
         });
@@ -165,6 +181,7 @@ app.get("/date/:week",(req,res) => {
 
 app.get("/login",(req,res) => {
     res.status(200).render("login",{
+        companyName: settings.company_name || "JustEnoughTime",
         error: null
     });
 });
@@ -194,12 +211,14 @@ app.get("/admin",(req,res) => {
     
             res.status(200).render("admin",{
                 dateInfo: dateInfo,
-                reservations: data  
+                companyName: settings.company_name || "JustEnoughTime",
+                reservations: data,
             });
         }).catch((error) => {
             console.error(error);
             res.status(500).render("index",{
                 dateInfo: null,
+                companyName: settings.company_name || "JustEnoughTime",
                 reservations: null,
                 error: "Error while retrieving data. Please try again later."
             });
@@ -243,6 +262,7 @@ app.post("/newReservation",(req,res) => {
         res.status(400).render("index",{
             dateInfo: null,
             reservations: null,
+            companyName: settings.company_name || "JustEnoughTime",
             error: "Error while saving your reservation. Please try again later."
         });
     }
@@ -253,13 +273,14 @@ app.post("/login",(req,res) => {
         res.redirect("/admin");
     }).catch(() => {
         res.status(400).render("login",{
+            companyName: settings.company_name || "JustEnoughTime",
             error: "Incorrect username or password"
         });
     });
 });
 
 // Käynnistetään palvelin
-const port = process.env.PORT || 8000;
+const port = process.env.PORT || settings.port || 8000;
 app.listen(port,() => {
     console.info(`The server started listening the port ${port}`);
 });

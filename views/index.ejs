@@ -57,6 +57,7 @@
                     </div>
                 </div>
 
+                <%# Next week -nappi on näkyvillä aina, prev week vain tarvittaessa %>
                 <% if(dateInfo.prevWeek){ %>
                     <a href="/date/<%=dateInfo.prevWeek%>/<%=dateInfo.prevYear%>" class="d-inline-block">Previous week</a>
                 <% } %>
@@ -107,6 +108,8 @@
                     </tbody>
                 </table>
                 <small><a href="/admin">Admin</a></small>
+            <% } else{ %>
+                <p><a href="/">Return to front page</a></p>
             <% } %>
         </div>
     </body>

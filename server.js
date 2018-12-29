@@ -26,7 +26,7 @@ const JET = require("./modals/JET.js");
 app.set("views","./views");
 app.set("view engine","ejs");
 
-moment.locale(settings.moment_language || "en");
+moment.locale(settings.moment_language || "fi");
 
 app.use(express.static("./public"));
 app.use(bodyParser.json());
@@ -34,7 +34,7 @@ app.use(bodyParser.urlencoded({
     extended: true
 }));
 app.use(session({
-    secret: "mklJklfdj45u984Fds",
+    secret: settings.session_encryption_key || "PhgTDrwHqhwfViv5MdqV",
     resave: false,
     saveUninitialized: false
 }));
@@ -55,11 +55,11 @@ app.get("/",(req,res) => {
             currentDay: now.weekday(), // 0-6, huomioi viikon aloituspäivän eri maissa
             weekNumber: now.week(), // 1-52
             nextYear: now.year(),
-            prevYear: null, // Tämä sivu näyttää aina nykyisen viikon, jolloin taakse päin ei pääse
+            prevYear: null, // Etusivu näyttää aina nykyisen viikon, jolloin taaksepäin ei pääse
             year: now.year(),
             nextWeek: null, // Täytetään alempana
-            prevWeek: null, // Tämä sivu näyttää aina nykyisen viikon, jolloin taakse päin ei pääse
-            dates: [
+            prevWeek: null, // Etusivu näyttää aina nykyisen viikon, jolloin taaksepäin ei pääse
+            dates: [ // Päivämäärät localeen sopivassa muodossa
                 now.weekday(0).format("l"),
                 now.weekday(1).format("l"),
                 now.weekday(2).format("l"),
@@ -89,7 +89,7 @@ app.get("/",(req,res) => {
         console.error(error);
         res.status(500).render("index",{
             dateInfo: null,
-            companyName: settings.company_name || "JustEnoughTime",
+            companyName: settings.company_name || "Just Enough Time",
             reservations: null,
             error: "Error while retrieving data. Please try again later."
         });
@@ -100,16 +100,16 @@ app.get("/date/:week/:year",(req,res) => {
         let now = moment();
         let realNow = moment();
 
-        if(!isNaN(req.params.week) && req.params.week > 0 && req.params.week <= 52){
-            now.week(req.params.week);
+        if(!isNaN(req.params.year) && req.params.year >= realNow.year() && req.params.year <= realNow.year() + settings.yearsToFuture){
+            now.year(req.params.year);
         }
         else{ // TODO: Better handler for this
             res.redirect("/");
             return true;
         }
 
-        if(!isNaN(req.params.year) && req.params.year >= realNow.year() && req.params.year <= realNow.year() + settings.yearsToFuture){
-            now.year(req.params.year);
+        if(!isNaN(req.params.week) && req.params.week >= 1 && req.params.week <= 52){
+            now.week(req.params.week);
         }
         else{ // TODO: Better handler for this
             res.redirect("/");
@@ -141,9 +141,9 @@ app.get("/date/:week/:year",(req,res) => {
             dateInfo.nextYear = dateInfo.year + 1;
         }
         else{
+            console.log(dateInfo.weekNumber);
             dateInfo.nextWeek = dateInfo.weekNumber + 1;
         }
-
         if(realNow.diff(now.week(-1),"weeks") <= 0){
             if(dateInfo.weekNumber <= 1){
                 dateInfo.prevWeek = 52;
@@ -156,7 +156,7 @@ app.get("/date/:week/:year",(req,res) => {
 
         res.status(200).render("index",{
             dateInfo: dateInfo,
-            companyName: settings.company_name || "JustEnoughTime",
+            companyName: settings.company_name || "Just Enough Time",
             reservations: data,
             error: null,
         });
@@ -164,7 +164,7 @@ app.get("/date/:week/:year",(req,res) => {
         console.error(error);
         res.status(500).render("index",{
             dateInfo: null,
-            companyName: settings.company_name || "JustEnoughTime",
+            companyName: settings.company_name || "Just Enough Time",
             reservations: null,
             error: "Error while retrieving data. Please try again later."
         });
@@ -211,14 +211,14 @@ app.get("/admin",(req,res) => {
     
             res.status(200).render("admin",{
                 dateInfo: dateInfo,
-                companyName: settings.company_name || "JustEnoughTime",
+                companyName: settings.company_name || "Just Enough Time",
                 reservations: data,
             });
         }).catch((error) => {
             console.error(error);
             res.status(500).render("index",{
                 dateInfo: null,
-                companyName: settings.company_name || "JustEnoughTime",
+                companyName: settings.company_name || "Just Enough Time",
                 reservations: null,
                 error: "Error while retrieving data. Please try again later."
             });
@@ -234,7 +234,7 @@ app.post("/newReservation",(req,res) => {
 
     let weHaveError = false;
     if(req.body.name && req.body.weekNumber && req.body.year && req.body.cellId){
-        if(req.body.name.length < 60 && req.body.weekNumber >= 1 && req.body.weekNumber <= 52 && req.body.year >= moment().year() && req.body.year <= moment().year() + 2 && req.body.cellId >= 0 && req.body.cellId <= 62){
+        if(req.body.name.length < 60 && req.body.weekNumber >= 1 && req.body.weekNumber <= 52 && req.body.year >= moment().year() && req.body.year <= moment().year() + settings.yearsToFuture && req.body.cellId >= 0 && req.body.cellId <= 62){
             if((!req.body.email || req.body.email.length <= 50) && (!req.body.extraInfo || req.body.extraInfo.length <= 500)){
                 JET.newReservation(req.body).then(() => {
                     res.redirect(`/date/${req.body.weekNumber}/${req.body.year}`);

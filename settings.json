@@ -1,6 +1,7 @@
 {
-    "moment_language": "en",
+    "moment_language": "fi",
     "port": 8000,
     "company_name": "Just Enough Time",
-    "yearsToFuture": 2
+    "yearsToFuture": 2,
+    "session_encryption_key": "PhgTDrwHqhwfViv5MdqV"
 }

@@ -38,8 +38,8 @@ module.exports = {
         return new Promise((resolve,reject) => {
             let thisReservation = {
                 name: body.name,
-                email: (body.email) ? body.email : null,
-                message: (body.extraInfo) ? body.extraInfo : null,
+                email: body.email || null,
+                message: body.extraInfo || null,
                 time : {
                     weekNumber: body.weekNumber,
                     year: body.year,
@@ -65,11 +65,11 @@ module.exports = {
                             }
                         });
                     }
-                    else{
+                    else{ // If there's already a reservation on this slot
                         reject();
                     }
                 }
-                else{
+                else{ // Error reading file
                     reject();
                 }
             });
@@ -93,7 +93,7 @@ module.exports = {
                 if(!error){
                     let users = JSON.parse(data).users;
                     let hash = (body.password) ? crypto.createHash("sha256").update(body.password).digest("hex") : "Nope";
-                    let thisUser = users.find((user) => {
+                    let thisUser = users.find((user) => { // Palauttaa undefined jos käyttäjää ei löydy
                         return body.username === user.username;
                     });
                     if(thisUser && hash === thisUser.password){

@@ -34,7 +34,7 @@ app.use(bodyParser.urlencoded({
     extended: true
 }));
 app.use(session({
-    secret: settings.session_encryption_key || "PhgTDrwHqhwfViv5MdqV",
+    secret: settings.session_secret || String(Math.floor(Math.random() * 999999) + 9999),
     resave: false,
     saveUninitialized: false
 }));

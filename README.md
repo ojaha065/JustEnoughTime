@@ -2,8 +2,7 @@
 Simple appointment scheduling system made using Node.js
 
 ## Settings
-There's a file called `settings.json` in the root of the file structure. Currently it allows you to modify following settings: 
-You can delete any optional settings from the JSON file to use default values. 
+There's a file called `settings.json` in the root of the file structure. You can delete any optional settings from the JSON file to use default values.  
 _(Please note that settings are not updated when the server is running)_
 
 ### yearsToFuture (Required)
@@ -15,13 +14,13 @@ Description: When this is set to zero, it means that users can only make appoint
 ### session_secret (Optional)
 Type: String  
 Supported values: Any string  
-Description: This is used by [`express-session`](https://github.com/expressjs/session) to sign the session cookie to prevent tampering. Using too short or simple encryption key can make session hijacking much easier. **It's highly recommended to change this setting as using the default one is very dangerous.**  
+Description: This is used by [`express-session`](https://github.com/expressjs/session) to sign the session cookie to prevent tampering. Using too short or simple encryption key can make session hijacking much easier. **It's highly recommended to change this setting as using the default one is very dangerous.** 
 
 ### moment_language (Optional)
 Type: String  
-Default: "fi"  
-Supported values: Currently only "fi" (Finnish) is officially supported. You can try other options.  
-Description: Allows you to change Moment.js's locale which sets the format dates are displayed in.
+Default: "en"  
+Supported values: Any Moment.js language code. 
+Description: Allows you to change [Moment.js's](https://github.com/moment/moment/) locale which sets the format dates are displayed in. Please note that this setting only changes the way dates are displayed. The dates are always calculated using [Finnish calendar](https://www.timeanddate.com/calendar/?country=24). E.g. first day of the week is always Monday.
 
 ### port (Optional)
 Type: Number  

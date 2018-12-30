@@ -17,10 +17,7 @@ const datafile = "./data.json";
 if(!fs.existsSync(datafile)){
     let emptyJSON = {
         users: [
-            {
-                username: "admin",
-                password: "1a8c5de43cd21c6e4a0ea70d01bbb380660cd3192e4eb1dd2f24d79e12bce1e2" // kissakala
-            }
+
         ],
         reservations: [
 
@@ -34,6 +31,31 @@ if(!fs.existsSync(datafile)){
 }
 
 module.exports = {
+    createAdminAccount: (password) => {
+        return new Promise((resolve,reject) => {
+            fs.readFile(datafile,"UTF-8",(error,data) => {
+                if(!error){
+                    data = JSON.parse(data);
+                    let adminAccount = {
+                        username: "admin",
+                        password: crypto.createHash("sha256").update(password).digest("hex")
+                    }
+                    data.users.push(adminAccount);
+                    fs.writeFile(datafile,JSON.stringify(data,null,2),(error) => {
+                        if(!error){
+                            resolve();
+                        }
+                        else{
+                            reject(error);
+                        }
+                    });
+                }
+                else{
+                    reject(error);
+                }
+            });
+        });
+    },
     newReservation: (body) => {
         return new Promise((resolve,reject) => {
             let thisReservation = {

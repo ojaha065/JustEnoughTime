@@ -3,5 +3,6 @@
     "port": 8000,
     "company_name": "Just Enough Time",
     "yearsToFuture": 2,
-    "session_secret": "PhgTDrwHqhwfViv5MdqV"
+    "session_secret": "PhgTDrwHqhwfViv5MdqV",
+    "noInteractiveConsole": false
 }

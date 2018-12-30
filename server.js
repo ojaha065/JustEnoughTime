@@ -10,18 +10,37 @@
 console.clear();
 console.info("Starting up... Please wait!");
 
-// Ladataan asetukset
-const fs = require("fs");
+// Ladataan asetukset ja tarkastetaan onko admin-tunnus jo olemassa
+let fs = require("fs");
 const settings = JSON.parse(fs.readFileSync("settings.json","UTF-8"));
+const adminAccountExits = fs.existsSync("data.json");
 
 const express = require("express");
 const session = require("express-session");
 const bodyParser = require("body-parser");
 const moment = require("moment");
+const readlineSync = require("readline-sync");
 
 const app = express();
 
 const JET = require("./modals/JET.js");
+
+// Kysytään komentorivi-ikkunassa minkä salasanan käyttäjä haluaa admin-tunnukselle
+if(!adminAccountExits && !settings.noInteractiveConsole){
+    const adminPassword = readlineSync.questionNewPassword("Input password for admin account:",{
+        min: 8,
+        max: 256
+    });
+    console.clear();
+    JET.createAdminAccount(adminPassword).then(() => {
+        console.info("Admin account was created with username 'admin'");
+        JET.createAdminAccount = undefined;
+    }).catch((error) => {
+        throw error;
+    });
+}
+
+fs = undefined; // Poistetaan fs käytöstä tietoturvasyistä kun sitä ei enää tarvita
 
 app.set("views","./views");
 app.set("view engine","ejs");
@@ -120,7 +139,6 @@ app.get("/date/:week/:year",(req,res) => {
             return true;
         }
 
-        console.log(now.year());
         let dateInfo = {
             currentDay: (Number(req.params.week) === realNow.week() && Number(req.params.year) == realNow.year()) ? now.weekday() : null,
             weekNumber: now.week(),
@@ -148,7 +166,7 @@ app.get("/date/:week/:year",(req,res) => {
         else{
             dateInfo.nextWeek = dateInfo.weekNumber + 1;
         }
-        if(realNow.weekday(0).diff(now.locale("fi").weekday(0).week(-1),"weeks") <= 1){
+        if(realNow.weekday(3).diff(now.locale("fi").weekday(3).week(-1),"weeks") <= 1){
             if(dateInfo.weekNumber <= 1){
                 dateInfo.prevWeek = 52;
                 dateInfo.prevYear = dateInfo.year - 1;

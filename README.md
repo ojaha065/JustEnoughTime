@@ -14,13 +14,13 @@ Description: When this is set to zero, it means that users can only make appoint
 ### session_secret (Optional)
 Type: String  
 Supported values: Any string  
-Description: This is used by [`express-session`](https://github.com/expressjs/session) to sign the session cookie to prevent tampering. Using too short or simple encryption key can make session hijacking much easier. **It's highly recommended to change this setting as using the default one is very dangerous.** 
+Description: This is used by [`express-session`](https://github.com/expressjs/session) to sign the session cookie to prevent tampering. Using too short or simple encryption key can be a security issue. **It's highly recommended to change this setting as using the default one is very dangerous.** 
 
 ### moment_language (Optional)
 Type: String  
 Default: "en"  
-Supported values: Any Moment.js language code. 
-Description: Allows you to change [Moment.js's](https://github.com/moment/moment/) locale which sets the format dates are displayed in. Please note that this setting only changes the way dates are displayed. The dates are always calculated using [Finnish calendar](https://www.timeanddate.com/calendar/?country=24). E.g. first day of the week is always Monday.
+Supported values: Any Moment.js language code.   
+Description: Allows you to change [Moment.js's](https://github.com/moment/moment/) locale which sets the format dates are displayed in. Please note that this setting only changes the way dates are displayed. The dates are always calculated using [Finnish calendar](https://www.timeanddate.com/calendar/?country=24). E.g. first day of the week is always Monday. Please not that `process.env.PORT` overrides this value.
 
 ### port (Optional)
 Type: Number  
@@ -34,5 +34,22 @@ Default: "Just Enough Time"
 Supported values: Any string. Can be empty.  
 Description: This string is shown in browser's title bar.
 
+### noInteractiveConsole (Optional)
+Type: Boolean  
+Default: false 
+Supported values: Boolean  
+Description: Set this to true if you want to skip the admin account creation during server startup. If you do, you need to create the account by editing data.json file by hand after the server has started. More information about this below.
+
+## Admin Access
+Currently the only way to add or modify accounts is to edit data.json file by hand. To add a new account, add following object to users array:
+
+```javascript
+{
+    "username": "Unique username here",
+    "password": "sha-256 hash of the password here"
+}
+```
+
 ## Starting the server
-`node server.js`
+`node server.js`  
+**Do not use Nodemon or similar tools unless you enable noInteractiveConsole**

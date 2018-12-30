@@ -21,7 +21,8 @@
     "ejs": "^2.6.1",
     "express": "^4.16.4",
     "express-session": "^1.15.6",
-    "moment": "^2.23.0"
+    "moment": "^2.23.0",
+    "readline-sync": "^1.4.9"
   },
   "nodemonConfig": {
     "ignore": [

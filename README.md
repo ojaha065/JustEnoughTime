@@ -2,7 +2,7 @@
 Simple appointment scheduling system made using Node.js
 
 ## Settings
-There's a file called `settings.json` in the root of the file structure. You can delete any optional settings from the JSON file to use default values.  
+There's a file named `settings.json` in the root of the file structure. You can delete any optional settings from the JSON file to use default values.  
 _(Please note that settings are not updated when the server is running)_
 
 ### yearsToFuture (Required)
@@ -20,13 +20,13 @@ Description: This is used by [`express-session`](https://github.com/expressjs/se
 Type: String  
 Default: "en"  
 Supported values: Any Moment.js language code.   
-Description: Allows you to change [Moment.js's](https://github.com/moment/moment/) locale which sets the format dates are displayed in. Please note that this setting only changes the way dates are displayed. The dates are always calculated using [Finnish calendar](https://www.timeanddate.com/calendar/?country=24). E.g. first day of the week is always Monday. Please not that `process.env.PORT` overrides this value.
+Description: Allows you to change [Moment.js's](https://github.com/moment/moment/) locale which sets the format dates are displayed in. Please note that this setting only changes the way dates are displayed. The dates are always calculated using [Finnish calendar](https://www.timeanddate.com/calendar/?country=24). E.g. first day of the week is always Monday.
 
 ### port (Optional)
 Type: Number  
 Default: 8000  
 Supported values: Any valid port number that is not in use.  
-Description: The server starts listening to this port.  
+Description: The server starts listening to this port. Please note that `process.env.PORT` overrides this value.
 
 ### company_name (Optional)
 Type: String  
@@ -51,5 +51,8 @@ Currently the only way to add or modify accounts is to edit `data.json` file by 
 ```
 
 ## Starting the server
-`node server.js`  
+```
+    npm install
+    node server.js
+```  
 **Do not use Nodemon or similar tools unless you enable noInteractiveConsole**

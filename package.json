@@ -13,9 +13,6 @@
   },
   "author": "Jani Haiko",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/ojaha065/JustEnoughTime/issues"
-  },
   "homepage": "https://github.com/ojaha065/JustEnoughTime#readme",
   "dependencies": {
     "ejs": "^2.6.1",

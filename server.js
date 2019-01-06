@@ -31,10 +31,10 @@ if(!adminAccountExits && !settings.noInteractiveConsole){
         min: 8,
         max: 256
     });
-    console.clear();
+    console.clear(); // Tyhjennetään konsoli-ikkuna salasanan syöttämisen jälkeen
     JET.createAdminAccount(adminPassword).then(() => {
         console.info("Admin account was created with username 'admin'");
-        JET.createAdminAccount = undefined;
+        JET.createAdminAccount = undefined; // Poistetaan käytöstä tietoturvasyistä kun ei enää tarvita
     }).catch((error) => {
         throw error;
     });
@@ -75,14 +75,14 @@ app.get("/",(req,res) => {
         let dateInfo = {
             currentDay: now.weekday(), // 0-6, huomioi viikon aloituspäivän eri maissa
             weekNumber: now.week(), // 1-52
-            nextYear: now.year(),
+            nextYear: now.year(), // Oletuksena next week -napin ei tarvitse muuttaa vuotta
             prevYear: null, // Etusivu näyttää aina nykyisen viikon, jolloin taaksepäin ei pääse
             year: now.year(),
             nextWeek: null, // Täytetään alempana
             prevWeek: null, // Etusivu näyttää aina nykyisen viikon, jolloin taaksepäin ei pääse
             dates: [ // Päivämäärät otetaan halutussa localessa
                 now.locale(settings.moment_language || "en").weekday(0).format("l"), // locale-metodia tarvitsee kutsua vain kerran
-                now.weekday(1).format("l"),
+                now.weekday(1).format("l"), // l-formaatti tulostaa päivämäärän localeen sopivassa järkevässä muodossa
                 now.weekday(2).format("l"),
                 now.weekday(3).format("l"),
                 now.weekday(4).format("l"),
@@ -102,7 +102,7 @@ app.get("/",(req,res) => {
 
         res.status(200).render("index",{
             dateInfo: dateInfo,
-            companyName: settings.company_name || "JustEnoughTime",
+            companyName: settings.company_name || "Just Enough Time",
             reservations: data,
             error: null
         });
@@ -116,10 +116,9 @@ app.get("/",(req,res) => {
         });
     });
 });
-app.get("/date/:week/:year",(req,res) => {
+app.get("/date/:week/:year",(req,res) => { // prev/next week -napit tuovat tähän reittiin
     JET.getAllReservations().then((data) => {
-        let now = moment();
-        let realYear;
+        let now = moment(); // Tässä reitissä now tarkoittaa sitä haluttua viikkoa
         let realNow = moment();
 
         if(!isNaN(req.params.year) && req.params.year >= realNow.year() && req.params.year <= realNow.year() + settings.yearsToFuture){
@@ -131,7 +130,6 @@ app.get("/date/:week/:year",(req,res) => {
         }
 
         if(!isNaN(req.params.week) && req.params.week >= 1 && req.params.week <= 52){
-            realYear = now.year(); // Otetaan vuosi talteen ennen viikon muuttamista, koska muuten tulee ongelmia
             now.week(req.params.week);
         }
         else{ // TODO: Better handler for this
@@ -142,9 +140,9 @@ app.get("/date/:week/:year",(req,res) => {
         let dateInfo = {
             currentDay: (Number(req.params.week) === realNow.week() && Number(req.params.year) == realNow.year()) ? now.weekday() : null,
             weekNumber: now.week(),
-            year: realYear,
-            nextYear: realYear,
-            prevYear: realYear,
+            year: Number(req.params.year),
+            nextYear: Number(req.params.year),
+            prevYear: Number(req.params.year),
             nextWeek: null,
             prevWeek: null,
             dates: [
@@ -166,7 +164,8 @@ app.get("/date/:week/:year",(req,res) => {
         else{
             dateInfo.nextWeek = dateInfo.weekNumber + 1;
         }
-        if(realNow.weekday(3).diff(now.locale("fi").weekday(3).week(-1),"weeks") <= 1){
+        // Ei näytetä prev week -nappia kun ollaan nykyisessä viikossa
+        if(realNow.weekday(3).diff(now.locale("fi").weekday(3).week(now.week() - 1),"weeks") <= 0){
             if(dateInfo.weekNumber <= 1){
                 dateInfo.prevWeek = 52;
                 dateInfo.prevYear = dateInfo.year - 1;
@@ -194,6 +193,7 @@ app.get("/date/:week/:year",(req,res) => {
 });
 
 // Jos parametreja puuttuu, ohjataan etusivulle
+// TODO: Selvitä onko tähän parempi tapa
 app.get("/date",(req,res) => {
     res.redirect("/");
 });
@@ -203,7 +203,7 @@ app.get("/date/:week",(req,res) => {
 
 app.get("/login",(req,res) => {
     res.status(200).render("login",{
-        companyName: settings.company_name || "JustEnoughTime",
+        companyName: settings.company_name || "Just Enough Time",
         error: null
     });
 });
@@ -284,7 +284,7 @@ app.post("/newReservation",(req,res) => {
         res.status(400).render("index",{
             dateInfo: null,
             reservations: null,
-            companyName: settings.company_name || "JustEnoughTime",
+            companyName: settings.company_name || "Just Enough Time",
             error: "Error while saving your reservation. Please try again later."
         });
     }
@@ -295,7 +295,7 @@ app.post("/login",(req,res) => {
         res.redirect("/admin");
     }).catch(() => {
         res.status(400).render("login",{
-            companyName: settings.company_name || "JustEnoughTime",
+            companyName: settings.company_name || "Just Enough Time",
             error: "Incorrect username or password"
         });
     });

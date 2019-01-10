@@ -1,6 +1,5 @@
 "use strict";
 
-// Crypton dokumentaatio suosittelee varmistamaan, että käytössä oleva Node.js -ympäristö sisältää crypto-moduulin.
 let crypto;
 try{
     crypto = require("crypto");
@@ -13,7 +12,6 @@ const fs = require("fs");
 
 const datafile = "./data.json";
 
-// Luodaan tietokantatiedosto, jos sitä ei ole olemassa
 if(!fs.existsSync(datafile)){
     let emptyJSON = {
         users: [
@@ -115,7 +113,7 @@ module.exports = {
                 if(!error){
                     let users = JSON.parse(data).users;
                     let hash = (body.password) ? crypto.createHash("sha256").update(body.password).digest("hex") : "Nope";
-                    let thisUser = users.find((user) => { // Palauttaa undefined jos käyttäjää ei löydy
+                    let thisUser = users.find((user) => {
                         return body.username === user.username;
                     });
                     if(thisUser && hash === thisUser.password){

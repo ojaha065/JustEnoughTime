@@ -51,16 +51,12 @@
                             </div>
                             <div class="modal-footer">
                                 <button type="reset" form="theForm" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                                <%# Internet Explorer ei tue form-atribuuttia ja koska tämä nappi on formin ulkopuolella, se ei toimi. %>
-                                <%# Tämän voisi korjata helposti selainpään JavaScriptillä tai siirtämällä nappi formin sisälle. %>
-                                <%# Edgellä toimii kuitenkin, joten saa nyt jäädä. %>
                                 <button type="submit" form="theForm" class="btn btn-primary">Submit</button>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <%# Next week -nappi on näkyvillä aina, prev week vain tarvittaessa %>
                 <div class="d-block">
                     <% if(dateInfo.prevWeek){ %>
                         <a href="/date/<%=dateInfo.prevWeek%>/<%=dateInfo.prevYear%>" class="float-left mb-2 btn btn-secondary">Previous week</a>

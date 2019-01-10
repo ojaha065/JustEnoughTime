@@ -1,16 +1,8 @@
 "use strict";
 
-/*
-    Jani Haiko (D5209)
-    TKMI17SP
-    Sovellusohjelmointi 2 / Janne Turunen
-    Soveltava harjoitustyö
-*/
-
 console.clear();
 console.info("Starting up... Please wait!");
 
-// Ladataan asetukset ja tarkastetaan onko admin-tunnus jo olemassa
 let fs = require("fs");
 const settings = JSON.parse(fs.readFileSync("settings.json","UTF-8"));
 const adminAccountExits = fs.existsSync("data.json");
@@ -25,28 +17,25 @@ const app = express();
 
 const JET = require("./modals/JET.js");
 
-// Kysytään komentorivi-ikkunassa minkä salasanan käyttäjä haluaa admin-tunnukselle
 if(!adminAccountExits && !settings.noInteractiveConsole){
     const adminPassword = readlineSync.questionNewPassword("Input password for admin account:",{
         min: 8,
         max: 256
     });
-    console.clear(); // Tyhjennetään konsoli-ikkuna salasanan syöttämisen jälkeen
+    console.clear();
     JET.createAdminAccount(adminPassword).then(() => {
         console.info("Admin account was created with username 'admin'");
-        JET.createAdminAccount = undefined; // Poistetaan käytöstä tietoturvasyistä kun ei enää tarvita
+        JET.createAdminAccount = undefined;
     }).catch((error) => {
         throw error;
     });
 }
 
-fs = undefined; // Poistetaan fs käytöstä tietoturvasyistä kun sitä ei enää tarvita
+fs = undefined;
 
 app.set("views","./views");
 app.set("view engine","ejs");
 
-// Käytetään päivämäärien käsittelyssä suomalaista kalenteria
-// Näin vältytään monilta päänsäryiltä
 moment.locale("fi");
 
 app.use(express.static("./public"));
@@ -60,7 +49,6 @@ app.use(session({
     saveUninitialized: false
 }));
 
-// Jos isLoggedIn-muuttujaa ei ole, luodaan se
 app.use((req,res,next) => {
     if(req.session.isLoggedIn === undefined){
         req.session.isLoggedIn = false;
@@ -73,16 +61,16 @@ app.get("/",(req,res) => {
     JET.getAllReservations().then((data) => {
         let now = moment();
         let dateInfo = {
-            currentDay: now.weekday(), // 0-6, huomioi viikon aloituspäivän eri maissa
+            currentDay: now.weekday(), // 0-6
             weekNumber: now.week(), // 1-52
-            nextYear: now.year(), // Oletuksena next week -napin ei tarvitse muuttaa vuotta
-            prevYear: null, // Etusivu näyttää aina nykyisen viikon, jolloin taaksepäin ei pääse
+            nextYear: now.year(),
+            prevYear: null,
             year: now.year(),
-            nextWeek: null, // Täytetään alempana
-            prevWeek: null, // Etusivu näyttää aina nykyisen viikon, jolloin taaksepäin ei pääse
-            dates: [ // Päivämäärät otetaan halutussa localessa
-                now.locale(settings.moment_language || "en").weekday(0).format("l"), // locale-metodia tarvitsee kutsua vain kerran
-                now.weekday(1).format("l"), // l-formaatti tulostaa päivämäärän localeen sopivassa järkevässä muodossa
+            nextWeek: null,
+            prevWeek: null,
+            dates: [
+                now.locale(settings.moment_language || "en").weekday(0).format("l"),
+                now.weekday(1).format("l"),
                 now.weekday(2).format("l"),
                 now.weekday(3).format("l"),
                 now.weekday(4).format("l"),
@@ -116,9 +104,9 @@ app.get("/",(req,res) => {
         });
     });
 });
-app.get("/date/:week/:year",(req,res) => { // prev/next week -napit tuovat tähän reittiin
+app.get("/date/:week/:year",(req,res) => {
     JET.getAllReservations().then((data) => {
-        let now = moment(); // Tässä reitissä now tarkoittaa sitä haluttua viikkoa
+        let now = moment();
         let realNow = moment();
 
         if(!isNaN(req.params.year) && req.params.year >= realNow.year() && req.params.year <= realNow.year() + settings.yearsToFuture){
@@ -164,7 +152,6 @@ app.get("/date/:week/:year",(req,res) => { // prev/next week -napit tuovat täh�
         else{
             dateInfo.nextWeek = dateInfo.weekNumber + 1;
         }
-        // Ei näytetä prev week -nappia kun ollaan nykyisessä viikossa
         if(realNow.weekday(3).diff(now.locale("fi").weekday(3).week(now.week() - 1),"weeks") <= 0){
             if(dateInfo.weekNumber <= 1){
                 dateInfo.prevWeek = 52;
@@ -192,8 +179,6 @@ app.get("/date/:week/:year",(req,res) => { // prev/next week -napit tuovat täh�
     });
 });
 
-// Jos parametreja puuttuu, ohjataan etusivulle
-// TODO: Selvitä onko tähän parempi tapa
 app.get("/date",(req,res) => {
     res.redirect("/");
 });
@@ -246,7 +231,7 @@ app.get("/admin",(req,res) => {
             });
         });
     }
-    else{ // Jos käyttäjä ei ole kirjautunut
+    else{
         res.redirect("/login");
     }
 });
@@ -301,7 +286,6 @@ app.post("/login",(req,res) => {
     });
 });
 
-// Käynnistetään palvelin
 const port = process.env.PORT || settings.port || 8000;
 app.listen(port,() => {
     console.info(`The server started listening the port ${port}`);

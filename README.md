@@ -41,7 +41,7 @@ Supported values: Boolean
 Description: Set this to true if you want to skip the admin account creation during server startup. If you do, you need to create the account by editing `data.json` file by hand after the server has started. More information about this below.
 
 ## Admin Access
-Currently the only way to add or modify accounts is to edit `data.json` file by hand. To add a new account, add following object to users array:
+Currently the only way to add or modify accounts is to edit `data.json` file by hand. To add an new account, add following object to the users array:
 
 ```javascript
 {
